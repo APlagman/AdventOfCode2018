@@ -1,3 +1,4 @@
+const then = Date.now();
 const input = `-15
 -17
 -16
@@ -984,3 +985,4 @@ while (repeated.length < 1) {
     }, total);
 }
 console.log(repeated[0]);
+console.log(`Took: ${Date.now() - then}ms`);
