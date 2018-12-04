@@ -1066,9 +1066,8 @@ const guardMostAsleep = guardStats[0][0];
 const minutesForGuard = guardStats[0][1].minutes.map((val, i) => [val, i]);
 minutesForGuard.sort((a,b) => b[0] - a[0]);
 
-let minuteMostAsleep = minutesForGuard[0][1];
-console.log(guardMostAsleep);
-console.log(minuteMostAsleep);
+const minuteMostAsleep = minutesForGuard[0][1];
+
 const part1 = guardMostAsleep * minuteMostAsleep;
 
 console.log(`Part 1: ${part1}`);
