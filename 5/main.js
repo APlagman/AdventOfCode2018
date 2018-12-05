@@ -22,6 +22,7 @@ const input = `ZzNnMYytTtfFTINnkKimYUOouyPpvVokKZzqQQqTtMmmIiMjJryYvVRztJjiIfFyG
 //     return cur;
 // }
 
+const then = new Date();
 const part1 = `Part 1: ${betterReact(input).length}`;
 console.log(part1);
 
@@ -60,3 +61,4 @@ reactions.sort((a,b) => a[1] - b[1]);
 
 const part2 = `Part 2: ${reactions[0][1]}`;
 console.log(part2);
+console.log(`${new Date() - then}ms`);
