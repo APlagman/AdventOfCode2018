@@ -82,6 +82,7 @@ lines.forEach((str, i) => {
 
 // Add border to check for infinite regions
 const adjustedDimensions = dimensions.map(val => val + 2);
+const gridArea = adjustedDimensions.reduce((x,y) => x * y);
 
 function manhattan(pos1, pos2) {
     return Math.abs(pos1[0] - pos2[0]) + Math.abs(pos1[1] - pos2[1]);
@@ -90,16 +91,16 @@ function manhattan(pos1, pos2) {
 let areaWithinThreshold = 0;
 let gridOutputString = "";
 
-for (let i = 0; i < grid.length; ++i) {
+for (let i = 0; i < gridArea; ++i) {
     const gridX = i % adjustedDimensions[0];
     const gridY = Math.floor(i / adjustedDimensions[0]);
 
     // Find manhattan distance to every point
     const distances = pointRegions.map(point => {
         return {
-            point = point.i,
-            distance = manhattan([gridX, gridY],
-            pos = point.pos)
+            point: point.i,
+            distance: manhattan([gridX, gridY], point.pos),
+            pos: point.pos
         };
     });
 
@@ -117,15 +118,15 @@ for (let i = 0; i < grid.length; ++i) {
     // Ascending
     distances.sort((a,b) => a.distance - b.distance);
 
-    const closest = distances[0].point;
+    const closest = distances[0];
 
     if (closest.distance < distances[1].distance) {
         // Check if infinite; if not, update area
         if (!pointRegions[closest.point].infinite) {
-            if (gridPosX === 0
-                || gridPosX === adjustedDimensions[0] - 1
-                || gridPosY === 0
-                || gridPosY === adjustedDimensions[1] - 1) {
+            if (gridX === 0
+                || gridX === adjustedDimensions[0] - 1
+                || gridY === 0
+                || gridY === adjustedDimensions[1] - 1) {
                     pointRegions[closest.point].infinite = true;
                 }
         }
@@ -135,17 +136,17 @@ for (let i = 0; i < grid.length; ++i) {
 }
 
 // Remove infinite regions
-pointRegions.reduce((prev,cur) => {
+const finite = pointRegions.reduce((prev,cur) => {
     if (!cur.infinite)
         prev.push(cur);
     return prev;
 }, new Array());
 
 // Sort descending
-pointRegions.sort((a,b) => b.area - a.area);
+finite.sort((a,b) => b.area - a.area);
 
 // Max area
-const part1 = pointRegions[0].area;
+const part1 = finite[0].area;
 
 const part2 = areaWithinThreshold;
 
