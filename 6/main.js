@@ -82,7 +82,6 @@ lines.forEach((str, i) => {
 
 // Add border to check for infinite regions
 const adjustedDimensions = dimensions.map(val => val + 2);
-const gridArea = adjustedDimensions[0] * adjustedDimensions[1];
 
 function manhattan(pos1, pos2) {
     return Math.abs(pos1[0] - pos2[0]) + Math.abs(pos1[1] - pos2[1]);
