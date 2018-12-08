@@ -6,8 +6,7 @@ Step B must be finished before step E can begin.
 Step D must be finished before step E can begin.
 Step F must be finished before step E can begin.`;
 const sampleWorkers = 2;
-const input = `Step Q must be finished before step O can begin.
-Step Z must be finished before step G can begin.`;
+const input = ``;
 const workers = 5;
 
 function lines(input) { return input.split(`\n`); }
