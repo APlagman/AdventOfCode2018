@@ -383,42 +383,58 @@ function advance(input) {
         return vel.split(', ').map(str => parseInt(str));
     });
 
-    let iterations = 0;
+    let mins = [], maxs = [];
 
-    function display() {
-        const mins =  [points.map(point => point[0]).reduce((max, val) => Math.min(max, val)),
-        points.map(point => point[1]).reduce((max, val) => Math.min(max, val))];
-        const maxs = [points.map(point => point[0]).reduce((max, val) => Math.max(max, val)),
-        points.map(point => point[1]).reduce((max, val) => Math.max(max, val))];
-
-        if (maxs[1] - mins[1] > 100)
-            return;
-
-        let toDisplay = `${iterations}\n`;
-        for (let i = mins[1]; i <= maxs[1]; ++i) {
-            for (let j = mins[0]; j <= maxs[0]; ++j) {
-                if (points.find(point => point[0] === j && point[1] === i))
-                    toDisplay += "#";
-                else
-                    toDisplay += ".";
-            }
-            toDisplay += "\n";
-        }
-        console.log(toDisplay);
+    function getBounds() {
+        mins = [points.map(point => point[0]).reduce((max, val) => Math.min(max, val)),
+                points.map(point => point[1]).reduce((max, val) => Math.min(max, val))];
+        maxs = [points.map(point => point[0]).reduce((max, val) => Math.max(max, val)),
+                points.map(point => point[1]).reduce((max, val) => Math.max(max, val))];
     }
 
-    function iter() {
-        ++iterations;
+    function update() {
         for (let i = 0; i < points.length; ++i) {
             points[i][0] += velocities[i][0];
             points[i][1] += velocities[i][1];
         }
-        display();
     }
 
-    while (true) {
-        iter();
+    getBounds(); // Get initial height
+
+    let iterations = 0;
+
+    let lastHeight = 10000000000;
+    let currentHeight = maxs[1] - mins[1];
+
+    let previous = null;
+    while (currentHeight < lastHeight) {
+        lastHeight = currentHeight;
+        previous = new Array(points.length);
+        for (let i = 0; i < previous.length; ++i) {
+            previous[i] = [0, 0];
+            previous[i][0] += points[i][0];
+            previous[i][1] += points[i][1];
+        }
+
+        ++iterations;
+        update();
+        getBounds();
+
+        currentHeight = maxs[1] - mins[1];
     }
+
+    let toDisplay = `${iterations - 1}\n`;
+    for (let i = mins[1]; i <= maxs[1]; ++i) {
+        for (let j = mins[0]; j <= maxs[0]; ++j) {
+            if (previous.find(point => point[0] === j && point[1] === i))
+                toDisplay += "#";
+            else
+                toDisplay += ".";
+        }
+        toDisplay += "\n";
+    }
+    console.log(toDisplay);
 }
 
+advance(sample);
 advance(input);
