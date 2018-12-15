@@ -199,6 +199,7 @@ function round(n, grid, units) {
         return a.y - b.y;
     });
 
+    console.clear();
     console.log(n);
     console.log(gridToString(grid, units));
 
@@ -370,9 +371,14 @@ function day15(input) {
     return `Part 1: ${first}, Part 2: [${battleResult.score}, Attack ${attackPower - 1}]`;
 }
 
-console.log(`Sample`)
-console.log(day15(sample));
+let str = `Sample
+${day15(sample)}`;
+
 const then = Date.now();
-console.log(`Actual`);
-console.log(day15(input));
-console.log(`${Date.now() - then}ms for actual input`);
+
+str = str + `
+Actual
+${day15(input)}
+${Date.now() - then}ms for actual input`;
+
+console.log(str);
