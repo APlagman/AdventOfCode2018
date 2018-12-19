@@ -88,12 +88,13 @@ seti 1 0 2   // 15     r2 = 1; jumps to inst 2
 mulr 2 2 2   // 16     r2 = r2 (16) * r2; r2 is now 256; ends program
 */
 
-/*
+/* The above instructions
 let r0 = 0
 for (r1 = 1; r1 <= r4; ++r1) {
     for (r3 = 1; r3 <= r4; ++r3) {
         if (r1 * r3 === r4) {
             r0 += r1
+            break
         }
     }
 }
