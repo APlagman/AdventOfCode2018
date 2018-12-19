@@ -140,8 +140,8 @@ seti 0 6 2   // 35     r2 = 0; jumps to inst 1 (part 2 of the question; we are s
 [1, 0, 30, 0, 875, 23550] next inst 31
 [1, 0, 31, 0, 875, 329700] next inst 32
 [1, 0, 32, 0, 875, 10550400] next inst 33
-[1, 0, 33, 0, 10551275,, 10550400] next inst 34
-[0, 0, 34, 0, 10551275,, 10550400] next inst 35
-[0, 0, 0, 0, 10551275,, 10550400] next inst 1
+[1, 0, 33, 0, 10551275, 10550400] next inst 34
+[0, 0, 34, 0, 10551275, 10550400] next inst 35
+[0, 0, 0, 0, 10551275, 10550400] next inst 1
 ... Factor summing begins
 */
