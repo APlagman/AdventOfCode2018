@@ -1,57 +1,3 @@
-function possible(chars) {
-    let groups = new Map()
-    let currentGroup = 0
-    groups.set(0, [""])
-    
-    for (let i = 0; i < chars.length; ++i) {
-        const char = chars[i]
-        if (char === '(') {
-            let tempLevel = 1
-            for (var nestedGroupEnd = i + 1; nestedGroupEnd < chars.length; ++nestedGroupEnd) {
-                if (chars[nestedGroupEnd] === '(')
-                    ++tempLevel
-                if (chars[nestedGroupEnd] === ')')
-                    --tempLevel
-                if (tempLevel === 0)
-                    break;
-            }
-            // Recurse
-            const nestedOptions = possible(chars.slice(i + 1, nestedGroupEnd))
-            // Pair all current options with nestedOptions
-            const currentOptions = groups.get(currentGroup)
-            const combined = new Set()
-            for (let suffix of nestedOptions) {
-                for (let prefix of currentOptions) {
-                    combined.add(prefix + suffix)
-                }
-            }
-            groups.set(currentGroup, Array.from(combined))
-            i = nestedGroupEnd
-
-        }
-        else if (char === ')') {
-            // Bad logic
-            console.log("error")
-        }
-        else if (char === '|') {
-            // New set of options
-            ++currentGroup
-            groups.set(currentGroup, [""])
-        }
-        else {
-            // Append ch
-            groups.set(currentGroup, groups.get(currentGroup).map(option => option + char))
-        }
-    }
-
-    let combined = new Set()
-    for (let group of groups.values()) {
-        for (let option of group)
-            combined.add(option)
-    }
-    return combined
-}
-
 function opposite(dir) {
     switch (dir) {
         case 'E': return 'W'
@@ -61,43 +7,95 @@ function opposite(dir) {
     }
 }
 
-function findRooms(rooms, route) {
-    let cur = { x: 0, y: 0, shortest: 0, open: new Set() }
-    const routeChars = route.split('');
-    for (let i = 0; i < routeChars.length; ++i) {
-        switch (routeChars[i]) {
-            case 'E': ++cur.x; break
-            case 'W': --cur.x; break
-            case 'N': --cur.y; break
-            case 'S': ++cur.y; break
+function createMap(start, chars, rooms) {
+    let current = start
+
+    for (let i = 0; i < chars.length; ++i) {
+        const char = chars[i]
+
+        if (char === '(') {
+            // Find end of nested group
+            let nestedLevel = 1
+            for (var nestedGroupEnd = i + 1; nestedGroupEnd < chars.length; ++nestedGroupEnd) {
+                if (chars[nestedGroupEnd] === '(')
+                    ++nestedLevel
+                if (chars[nestedGroupEnd] === ')')
+                    --nestedLevel
+                if (nestedLevel === 0)
+                    break;
+            }
+            // Recurse
+            const nestedChars = chars.slice(i + 1, nestedGroupEnd)
+            createMap(current, nestedChars, rooms)
+            // Skip past nested group
+            i = nestedGroupEnd
         }
-        cur.open.add(opposite(routeChars[i]))
-        ++cur.shortest
-        const found = rooms.find(room => (room.x === cur.x) && (room.y === cur.y))
-        if (found) {
-            if (cur.shortest < found.shortest)
-                found.shortest = cur.shortest
-            found.open.add(opposite(routeChars[i]))
+        else if (char === ')') {
+            // Bad logic
+            console.log("error")
+        }
+        else if (char === '|') {
+            // Alternative path from start
+            current = start
         }
         else {
-            rooms.push({ x: cur.x, y: cur.y, shortest: cur.shortest, open: cur.open })
-            cur.open = new Set()
+            let adjacent = {
+                x: current.x,
+                y: current.y,
+                shortest: current.shortest + 1,
+                open: []
+            }
+            adjacent.open.push(current)
+
+            switch (char) {
+                case 'E': adjacent.x += 1; break
+                case 'W': adjacent.x -= 1; break
+                case 'N': adjacent.y -= 1; break
+                case 'S': adjacent.y += 1; break
+            }
+
+            let existing = null
+            if (current.open.length > 0) {
+                existing = current.open.find(room => room.x === adjacent.x && room.y === adjacent.y)
+            }
+
+            if (existing == null) {
+                current.open.push(adjacent)
+                rooms.push(adjacent)
+            }
+            else {
+                if (!existing.open.some(room => room.x === current.x && room.y === current.y)) {
+                    existing.open.push(current)
+                }
+                adjacent = existing
+                if (current.shortest + 1 < adjacent.shortest)
+                    adjacent.shortest = current.shortest + 1
+            }
+            current = adjacent
         }
     }
 }
 
 function day20(input) {
+    console.log(input)
     const chars = input.split('').slice(1, -1);
-    const routes = possible(chars)
-    console.log(`found ${routes.size} routes`)
-    const rooms = [{ x: 0, y: 0, shortest: 0, open: new Set() }]
-    for (let route of routes)
-        findRooms(rooms, route)
-    return rooms.reduce((best, cur) => {
-        if (cur.shortest > best.shortest)
-            best = cur
+    const root = {
+        x: 0,
+        y: 0,
+        open: [],
+        shortest: 0
+    }
+    let rooms = []
+    rooms.push(root)
+    
+    createMap(root, chars, rooms)
+    
+    const numShortestOver1000 = rooms.filter(room => room.shortest >= 1000).length
+    return [rooms.reduce((best, room) => {
+        if (room.shortest > best.shortest)
+            best = room
         return best
-    })
+    }).shortest, numShortestOver1000]
 }
 
 const samples = [`^WNE$`,
@@ -110,4 +108,4 @@ const input = `^NWWNWSWNWWWNWSWWWWSWWNENWNNNENNWWNWNEEEES(SESSENEESSW(S(WNWSS(WN
 
 samples.forEach(sample =>
     console.log(day20(sample)))
-//console.log(day20(input))
+console.log(day20(input))
