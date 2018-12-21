@@ -1,27 +1,21 @@
-const opcodeFuncsByName = new Map();
-
-opcodeFuncsByName.set("addr", (registers, a, b, c) => registers[c] = registers[a] + registers[b]);
-opcodeFuncsByName.set("addi", (registers, a, b, c) => registers[c] = registers[a] + b);
-
-opcodeFuncsByName.set("mulr", (registers, a, b, c) => registers[c] = registers[a] * registers[b]);
-opcodeFuncsByName.set("muli", (registers, a, b, c) => registers[c] = registers[a] * b);
-
-opcodeFuncsByName.set("banr", (registers, a, b, c) => registers[c] = registers[a] & registers[b]);
-opcodeFuncsByName.set("bani", (registers, a, b, c) => registers[c] = registers[a] & b);
-
-opcodeFuncsByName.set("borr", (registers, a, b, c) => registers[c] = registers[a] | registers[b]);
-opcodeFuncsByName.set("bori", (registers, a, b, c) => registers[c] = registers[a] | b);
-
-opcodeFuncsByName.set("setr", (registers, a, b, c) => registers[c] = registers[a]);
-opcodeFuncsByName.set("seti", (registers, a, b, c) => registers[c] = a);
-
-opcodeFuncsByName.set("gtir", (registers, a, b, c) => registers[c] = (a > registers[b] ? 1 : 0));
-opcodeFuncsByName.set("gtri", (registers, a, b, c) => registers[c] = (registers[a] > b ? 1 : 0));
-opcodeFuncsByName.set("gtrr", (registers, a, b, c) => registers[c] = (registers[a] > registers[b] ? 1 : 0));
-
-opcodeFuncsByName.set("eqir", (registers, a, b, c) => registers[c] = (a === registers[b] ? 1 : 0));
-opcodeFuncsByName.set("eqri", (registers, a, b, c) => registers[c] = (registers[a] === b ? 1 : 0));
-opcodeFuncsByName.set("eqrr", (registers, a, b, c) => registers[c] = (registers[a] === registers[b] ? 1 : 0));
+const opcodeFuncsByName = {
+    addr: (registers, a, b, c) => registers[c] = registers[a] + registers[b],
+    addi: (registers, a, b, c) => registers[c] = registers[a] + b,
+    mulr: (registers, a, b, c) => registers[c] = registers[a] * registers[b],
+    muli: (registers, a, b, c) => registers[c] = registers[a] * b,
+    banr: (registers, a, b, c) => registers[c] = registers[a] & registers[b],
+    bani: (registers, a, b, c) => registers[c] = registers[a] & b,
+    borr:(registers, a, b, c) => registers[c] = registers[a] | registers[b] ,
+    bori: (registers, a, b, c) => registers[c] = registers[a] | b,
+    setr: (registers, a, b, c) => registers[c] = registers[a],
+    seti: (registers, a, b, c) => registers[c] = a,
+    gtir: (registers, a, b, c) => registers[c] = (a > registers[b] ? 1 : 0),
+    gtri: (registers, a, b, c) => registers[c] = (registers[a] > b ? 1 : 0),
+    gtrr: (registers, a, b, c) => registers[c] = (registers[a] > registers[b] ? 1 : 0),
+    eqir: (registers, a, b, c) => registers[c] = (a === registers[b] ? 1 : 0),
+    eqri: (registers, a, b, c) => registers[c] = (registers[a] === b ? 1 : 0),
+    eqrr: (registers, a, b, c) => registers[c] = (registers[a] === registers[b] ? 1 : 0)
+}
 
 function day21(input) {
     const lines = input.split('\n')
@@ -37,33 +31,38 @@ function day21(input) {
     })
 
     const registers = new Array(6)
-
     registers.fill(0)
 
     let ip = 0
     let instructionsExecuted = 0
+    let instructionsPerUniqueR0 = new Map()
 
-    // Part 1 - Find the first value of r3 when we reach the instruction the program can exit at
-    // since the program only exits if r0 === r3
-    while (ip >= 0 && ip < instructions.length && ip !== 29) {
-        const instruction = instructions[ip]
-        registers[ipRegister] = ip
-        const func = opcodeFuncsByName.get(instruction.name)
-        func(registers, instruction.args[0], instruction.args[1], instruction.args[2])
-        ++instructionsExecuted
-        ip = registers[ipRegister]
-        ++ip
-    }
-    
-    const r0ForLeastInstructions = registers[3]
+    // Re-using solution to day 19
+    // I used this for part 1 without the Map
+    // This is really slow for part 2, but by the time I realized I needed to look for repeats I had begun rewriting the elf-code
 
-    // Part 2 - Find last unique value of r3 when hitting the exit instruction
-    // since when r3 repeats we would have already exited
+    // while (ip >= 0 && ip < instructions.length) {
+    //     const instruction = instructions[ip]
+    //     registers[ipRegister] = ip
+    //     const func = opcodeFuncsByName[instruction.name]
+    //     func(registers, instruction.args[0], instruction.args[1], instruction.args[2])
+    //     ++instructionsExecuted
+    //     ip = registers[ipRegister]
+    //     ++ip
+    //     if (ip === 29) {
+    //         if (instructionsPerUniqueR0.has(registers[3]))
+    //             break;
+    //         instructionsPerUniqueR0.set(registers[3], instructionsExecuted);
+    //     }
+    // }
+
     registers.fill(0)
     ip = 0
     instructionsExecuted = 5
     instructionsPerUniqueR0 = new Map()
 
+    // For part 2, I manually re-wrote the elf code in JS and ran until finding a repeat candidate for r0
+    // This also works for part 1, of course
     let continue6 = true, continue8 = true
     inst6: do {
         continue8 = true
